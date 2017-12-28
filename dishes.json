@@ -1,0 +1,6 @@
+[
+  {"model": "restaurantapi.category", "pk": 1, "fields": {"name": "Sashimi","description":"none"}},
+  {"model": "restaurantapi.category", "pk": 2, "fields": {"name": "Niguiris","description":"none"}},
+  {"model": "restaurantapi.dish", "pk": 1, "fields": {"name": "Sake no Tiraditos", "description": "Good old eggs","price":0 ,"category": 1}}
+
+]
