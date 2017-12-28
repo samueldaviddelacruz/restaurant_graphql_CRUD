@@ -71,44 +71,150 @@ class Query(object):
         return None
 
 
+class CreateCategoryInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    description = graphene.String(required=False)
+
+
 class CreateCategory(graphene.Mutation):
     class Arguments:
-        name = graphene.String(required=True)
-        description = graphene.String(required=False)
+        category_data = CreateCategoryInput(required=True)
 
     ok = graphene.Boolean()
     category = graphene.Field(CategoryType)
 
-    def mutate(self, info, name,description):
+    def mutate(self, info, category_data=None):
 
         #category = CategoryType(name=name,description="aa")
         ok=True
-        obj = Category.objects.create(name=name,description=description)
+        obj = Category.objects.create(name=category_data.name,description=category_data.description)
         return CreateCategory(category=obj,ok=ok)
+
+
+class UpdateCategoryInput(graphene.InputObjectType):
+    name = graphene.String(required=False)
+    description = graphene.String(required=False)
 
 
 class UpdateCategory(graphene.Mutation):
     class Arguments:
-        categoryId=graphene.Int(required=True)
-        name = graphene.String(required=True)
-        description = graphene.String(required=False)
+        category_id=graphene.Int(required=True)
+        category_data = UpdateCategoryInput(required=False)
 
     ok = graphene.Boolean()
     category = graphene.Field(CategoryType)
 
-    def mutate(self, info, categoryId,name, description):
+    def mutate(self, info, category_id,category_data=None):
 
-        updated_values = {'name': name, 'description': description}
+        old_object =  Category.objects.get(id=category_id)
+        updated_values = {'name': old_object.name, 'description': old_object.description}
+
+        if category_data is not None:
+            if category_data.name is not None:
+                updated_values['name'] = category_data.name
+            if category_data.description is not None:
+                updated_values['description'] = category_data.description
+
+        obj,created = Category.objects.update_or_create(id=category_id,defaults=updated_values)
         ok = True
-        obj,created = Category.objects.update_or_create(id=categoryId,defaults=updated_values)
+        return UpdateCategory(category=obj,ok=ok)
 
 
-        return CreateCategory(category=obj, ok=ok)
+class DeleteCategory(graphene.Mutation):
+    class Arguments:
+        category_id=graphene.Int(required=True)
+
+    deleted = graphene.Boolean()
+    category_deleted_id = graphene.Int()
+
+    def mutate(self, info, category_id):
+
+        Category.objects.filter(id=category_id).delete()
+        deleted = True
+
+        return DeleteCategory(deleted=deleted,category_deleted_id=category_id)
+
+
+class CreateDishInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    category_id = graphene.Int(required=True)
+    description = graphene.String(required=False)
+    price = graphene.Int(required=False)
+
+
+class CreateDish(graphene.Mutation):
+    class Arguments:
+        create_dish_input= CreateDishInput(required=False)
+
+    ok = graphene.Boolean()
+    dish = graphene.Field(DishType)
+
+    def mutate(self,info,create_dish_input):
+
+        obj = Dish.objects.create(name=create_dish_input.name,
+                                  category_id=create_dish_input.category_id,
+                                  description=create_dish_input.description,
+                                  price=create_dish_input.price)
+        ok = True
+        return CreateDish(dish = obj,ok = ok)
+
+
+class UpdateDishInput(graphene.InputObjectType):
+    name = graphene.String(required=False)
+    description = graphene.String(required=False)
+    price = graphene.Int(required=False)
+
+
+class UpdateDish(graphene.Mutation):
+    class Arguments:
+        dish_id = graphene.Int(required=True)
+        dish_data = UpdateDishInput(required=False)
+
+    ok = graphene.Boolean()
+    dish = graphene.Field(DishType)
+
+    def mutate(self,info,dish_id,dish_data=None):
+
+        old_object = Dish.objects.get(id=dish_id)
+        updated_values = {'name': old_object.name, 'description': old_object.description,'price':old_object.price}
+
+        if dish_data is not None:
+            if dish_data.name is not None:
+                updated_values['name'] = dish_data.name
+            if dish_data.description is not None:
+                updated_values['description'] = dish_data.description
+            if dish_data.price is not None:
+                updated_values['price'] = dish_data.price
+
+        obj,created = Dish.objects.update_or_create(id=dish_id,defaults=updated_values)
+        ok = True
+        return UpdateDish(dish=obj, ok=ok)
+
+
+class DeleteDish(graphene.Mutation):
+    class Arguments:
+        dish_id = graphene.Int(required=True)
+
+    deleted = graphene.Boolean()
+    dish_deleted_id = graphene.Int()
+
+    def mutate(self,info,dish_id):
+        Dish.objects.filter(id=dish_id).delete()
+        deleted = True
+
+        return DeleteDish(deleted=deleted,dish_deleted_id=dish_id)
 
 
 class Mutation(graphene.AbstractType):
     create_category = CreateCategory.Field()
     update_category = UpdateCategory.Field()
+    delete_category = DeleteCategory.Field()
+
+    create_dish = CreateDish.Field()
+    update_dish = UpdateDish.Field()
+    delete_dish = DeleteDish.Field()
+
+
 
 
 
