@@ -1,3 +1,3 @@
 # restaurant_graphql_api
 
-Restaurant graphql API CRUD made on Django using Graphene and sqlite3
+Restaurant graphql CRUD made on Django using Graphene and sqlite3
