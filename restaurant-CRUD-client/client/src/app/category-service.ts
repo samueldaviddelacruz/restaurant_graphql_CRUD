@@ -7,29 +7,25 @@ import gql from 'graphql-tag';
 @Injectable()
 export class CategoryService {
 
-  constructor(private apollo: Apollo,
-              private httpLink: HttpLink) {
-
-    this.apollo.create({
-      link: this.httpLink.create({uri: 'http://localhost:8000/graphql'}),
-      cache: new InMemoryCache()
-    });
+  constructor(private apollo: Apollo) {
   }
 
   getAllCategories() {
     const query = gql`query{allCategories {
                                       id,name,description
-                                    }}`
-    return this.apollo.query({query: query}).toPromise<any>().then(response => response.data.allCategories.map(
+                                    }}`;
+    return this.apollo.query({
+      query: query,
+      fetchPolicy: 'network-only'
+    }).toPromise<any>().then(response => response.data.allCategories.map(
       cat => {
-        return {id: cat.id, name: cat.name, description: cat.description, isEditing: false}
+        return {id: cat.id, name: cat.name, description: cat.description, isEditing: false};
       }));
   }
 
   updateCategory(category) {
 
-    const mutation = gql`mutation{
-                                            updateCategory(categoryId:${category.id},categoryData:{name:"${category.name}",description:"${category.description}"}) {
+    const mutation = gql`mutation{ updateCategory(categoryId:${category.id},categoryData:{name:"${category.name}",description:"${category.description}"}) {
                                               ok,category {
                                                 id,name,description
                                               }
@@ -37,7 +33,7 @@ export class CategoryService {
                                           }`;
     return this.apollo.mutate({mutation: mutation}).toPromise().then(
       response => {
-        return {...response.data.updateCategory.category, isEditing: false}
+        return {...response.data.updateCategory.category, isEditing: false};
       });
   }
 
@@ -52,13 +48,13 @@ export class CategoryService {
                         }
                       }
                     }`;
-    return this.apollo.mutate({mutation: mutation}).toPromise().then(response => response.data.createCategory.category)
+
+    return this.apollo.mutate({mutation: mutation}).toPromise().then(response => response.data.createCategory.category);
   }
 
   deleteCategory(categoryId) {
 
-    const mutation = gql`mutation{
-                                    deleteCategory(categoryId:${categoryId}){
+    const mutation = gql`mutation{deleteCategory(categoryId:${categoryId}){
                                       deleted,categoryDeletedId
                                     }
                                   }`;
