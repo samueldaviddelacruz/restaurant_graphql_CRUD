@@ -1,12 +1,19 @@
 version: '3'
 
 services:
-  api:
+ api:
     build: .
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
       - "8000:8000"
+ client:
+    build: ./restaurant-CRUD-client
+    command: ng serve --host 0.0.0.0 --port 4200
+    volumes:
+      - ./restaurant-CRUD-client/client/src:/code/src    
+    ports:
+      - "4200:4200"
    
     
