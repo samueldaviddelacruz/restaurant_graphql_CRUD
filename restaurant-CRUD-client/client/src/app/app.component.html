@@ -1,0 +1,56 @@
+<!--The content below is only a placeholder and can be replaced.-->
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-m">
+      <p class="text-left" style="font-size: 20px;">Category <span style="
+    font-size: 24px;margin-left: 10%" (click)="startAddingCategory()">    <i class="ion-android-add"></i>
+
+
+
+    </span></p>
+
+      <ul class="list-group">
+        <li class="list-group-item" *ngIf="isAddingCategory">
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newCategoryName" class="form-control"
+                   (keyup.enter)="addCategory(newCategoryName)">
+
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" (click)="cancelAddCategory()"><i
+                class="ion-close"></i></button>
+            </div>
+          </div>
+        </li>
+
+        <li class="list-group-item" *ngFor="let category of categories">
+
+          <div class="input-group">
+
+            <label class="form-control" *ngIf="!category.isEditing">{{ category.name }}</label>
+            <input type="text" [(ngModel)]="category.name" class="form-control" (keyup.enter)="updateCategory(category)"
+                   *ngIf="category.isEditing">
+
+
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" (click)="toggleEdit(category)"><i
+                class="ion-edit"></i></button>
+              <button class="btn btn-outline-secondary" type="button" (click)="deleteCategory(category)"><i
+                class="ion-close"></i></button>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+
+    </div>
+
+    <div class="col">
+      Dishes go here
+    </div>
+
+  </div>
+</div>
+
+
